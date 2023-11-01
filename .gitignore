@@ -1,8 +1,10 @@
 data/
 model/weights/
+wandb/
 
 */__pycache__
 __pycache__/
 
 tracking.txt
 test.py
+.tmp.driveupload

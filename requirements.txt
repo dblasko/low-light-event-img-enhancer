@@ -4,3 +4,5 @@ torch
 torchvision
 albumentations
 wandb
+pyyaml
+tqdm
