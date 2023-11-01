@@ -81,7 +81,7 @@ if __name__ == "__main__":
             config = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-    required_keys = ['epochs', 'train_dataset_path', 'val_dataset_path', 'test_dataset_path', 'batch_size', 'learning_rate', 'early_stopping']
+    required_keys = ['epochs', 'train_dataset_path', 'val_dataset_path', 'test_dataset_path', 'batch_size', 'learning_rate', 'early_stopping', 'image_size']
     if not all(key in config for key in required_keys):
         raise ValueError(f"Config file must contain properties {','.join(required_keys)}.")
     
@@ -98,16 +98,16 @@ if __name__ == "__main__":
     wandb.config.update(config)
 
     # Prepare training objects:
-    model = MIRNet(num_features=64).to(device)
+    model = MIRNet(num_features=config['num_features'] if 'num_features' in config else 64).to(device)
     wandb.watch(model)
     criterion = CharbonnierLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], betas=(0.9,0.999), weight_decay=1e-8, eps=1e-8)
     lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['epochs'], 5e-5, verbose=True)
     
-    train_dataset = PretrainingDataset(config['train_dataset_path'] + '/imgs', config['train_dataset_path'] + '/targets', img_size=128)
-    val_dataset = PretrainingDataset(config['val_dataset_path'] + '/imgs', config['val_dataset_path'] + '/targets', img_size=128, train=False)
-    test_dataset = PretrainingDataset(config['test_dataset_path'] + '/imgs', config['test_dataset_path'] + '/targets', img_size=128, train=False)
-    train_data = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=8, pin_memory=True)
+    train_dataset = PretrainingDataset(config['train_dataset_path'] + '/imgs', config['train_dataset_path'] + '/targets', img_size=config['image_size'])
+    val_dataset = PretrainingDataset(config['val_dataset_path'] + '/imgs', config['val_dataset_path'] + '/targets', img_size=config['image_size'], train=False)
+    test_dataset = PretrainingDataset(config['test_dataset_path'] + '/imgs', config['test_dataset_path'] + '/targets', img_size=config['image_size'], train=False)
+    train_data = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=config['workers'] if 'workers' in config else 8, pin_memory=True)
     val_data = DataLoader(val_dataset, batch_size=config['batch_size'], shuffle=False)
     test_data = DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=False)
     
