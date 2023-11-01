@@ -42,16 +42,18 @@ class DownsamplingModule(nn.Module):
     
     def __init__(self, in_channels, scaling_factor, stride=2):
         super().__init__()
-        self.scaling_factor = scaling_factor
+        self.scaling_factor = int(np.log2(scaling_factor))
         
         blocks = []
-        for i in range(scaling_factor):
-            blocks.append(DownsamplingBlock(int(in_channels * (stride^i))))
+        for i in range(self.scaling_factor):
+            blocks.append(DownsamplingBlock(in_channels))
+            in_channels = int(in_channels * stride)
         self.blocks = nn.Sequential(*blocks)
             
     
     def forward(self, x):
-        return self.blocks(x) # H/2^(scaling factor) x W/2^(scaling factor) x C^2(scaling factor)
+        x = self.blocks(x)
+        return x # H/2^(scaling factor) x W/2^(scaling factor) x C^2(scaling factor)
 
 
 

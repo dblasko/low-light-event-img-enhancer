@@ -23,7 +23,8 @@ class DualAttentionUnit(nn.Module):
         )
         self.channel_attention = ChannelAttention(in_channels, reduction_ratio, bias)
         self.spatial_attention = SpatialAttention()
-        self.final_conv = nn.Conv2d(in_channels * 2, in_channels, kernel_size=1, bias=bias)
+        self.final_conv = nn.Conv2d(in_channels*2, in_channels, kernel_size=1, bias=bias)
+        self.in_channels = in_channels
     
     def forward(self, x):
         initial_convs = self.initial_convs(x) # HxWxC

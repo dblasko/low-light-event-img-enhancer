@@ -30,7 +30,7 @@ class SelectiveKernelFeatureFusion(nn.Module):
         n_features = x[0].shape[1]
         
         x = torch.cat(x, dim=1) # the three outputs of diff. res. are concatenated along the channel dimension
-        x = x.view(batch_size, 3, n_features, n_features.shape[2], n_features.shape[3]) # batch_size x 3 x n_features x H x W
+        x = x.view(batch_size, 3, n_features, x.shape[2], x.shape[3]) # batch_size x 3 x n_features x H x W
         
         z = torch.sum(x, dim=1) # batch_size x n_features x H x W
         z = self.avg_pool(z) # batch_size x n_features x 1 x 1

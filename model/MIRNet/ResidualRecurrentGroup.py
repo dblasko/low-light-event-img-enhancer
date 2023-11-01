@@ -14,6 +14,7 @@ class ResidualRecurrentGroup(nn.Module):
         blocks.append(
             nn.Conv2d(num_features, num_features, kernel_size=3, padding=1, stride=1, bias=bias)
         )
+        self.blocks = nn.Sequential(*blocks)
     
     def forward(self, x):
         output = self.blocks(x)

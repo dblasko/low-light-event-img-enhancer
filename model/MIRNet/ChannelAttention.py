@@ -21,7 +21,7 @@ class ChannelAttention(nn.Module):
         )
     
     def forward(self, x):
-        squeezed_x = self.squeeze(x) # 1x1xC
+        squeezed_x = self.squeezing(x) # 1x1xC
         excitation = self.excitation(squeezed_x) # 1x1x(C/r)
         return excitation * x # HxWxC restored through the mult. with the original input
         

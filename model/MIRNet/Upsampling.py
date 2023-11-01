@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 class UpsamplingBlock(nn.Module):
@@ -40,10 +41,10 @@ class UpsamplingModule(nn.Module):
     
     def __init__(self, in_channels, scaling_factor, stride=2):
         super().__init__()
-        self.scaling_factor = scaling_factor
+        self.scaling_factor = int(np.log2(scaling_factor))
         
         blocks = []
-        for i in range(scaling_factor):
+        for i in range(self.scaling_factor):
             blocks.append(UpsamplingBlock(in_channels))
             in_channels = int(in_channels // 2)
         self.blocks = nn.Sequential(*blocks)

@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn as nn
 from model.MIRNet.Downsampling import DownsamplingModule
 
@@ -55,7 +56,7 @@ class MultiScaleResidualBlock(nn.Module):
             else:
                 inp = self.dual_attention_units[j][0](self.down[f'{inp.size(1)}_{2}'](inp))
             out.append(inp)
-            
+        
         for i in range(1, self.width):
             
             if True:

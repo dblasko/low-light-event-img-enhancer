@@ -12,20 +12,14 @@ class MIRNet(nn.Module):
     """
     def __init__(self, in_channels=3, out_channels=3, num_features=64, kernel_size=3, stride=2, number_msrb=2, number_rrg=3, height=3, width=2, bias=False):
         super().__init__()
-        self.conv_start = nn.Conv2d(in_channels, num_features, kernel_size=kernel_size, stride=stride, padding=1, bias=bias)
+        self.conv_start = nn.Conv2d(in_channels, num_features, kernel_size, padding=1, bias=bias)
         msrb_blocks = [ResidualRecurrentGroup(num_features, number_msrb, height, width, stride, bias) for _ in range(number_rrg)]
         self.msrb_blocks = nn.Sequential(*msrb_blocks)
-        self.conv_end = nn.Conv2d(num_features, out_channels, kernel_size=kernel_size, padding=1, bias=bias)
+        self.conv_end = nn.Conv2d(num_features, out_channels, kernel_size, padding=1, bias=bias)
     
     def forward(self, x):
         output = self.conv_start(x)
         output = self.msrb_blocks(output)
         output = self.conv_end(output)
         return x + output # restored image, HxWxC
-        
-if __name__ == '__main__':
-    
-    t1 = torch.randn((1, 3, 64, 64))
-    model = MIRNet()
-    pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(pytorch_total_params)
+
