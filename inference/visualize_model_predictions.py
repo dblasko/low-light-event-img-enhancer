@@ -4,6 +4,8 @@ import torchvision.utils as vutils
 from torchvision.utils import make_grid
 from PIL import Image, ImageDraw, ImageFont
 import os
+import sys
+sys.path.append(".")
 
 from model.MIRNet.model import MIRNet
 
@@ -11,6 +13,7 @@ from model.MIRNet.model import MIRNet
 Run this script to visualize a trained model's results on the test dataset. The constants below can be changed to visualize the results of different models.
 The output image is saved in 'inference/results', and it is a grid where each row contains the original image, the inference result and the ground truth image.
 """
+# TODO: document usage in README
 
 IMG_SIZE = 400
 NUM_FEATURES = 64
@@ -63,22 +66,18 @@ if __name__ == '__main__':
         grid = make_grid(images, nrow=3)
         vutils.save_image(grid, open(f'inference/results/model_testing_grid.png', 'wb'))
         # Read 'model_testing_grid.png' as a PIL image
-        grid = Image.open('model_testing_grid.png')
+        grid = Image.open('inference/results/model_testing_grid.png')
 
         # Draw filenames on the grid
         draw = ImageDraw.Draw(grid)
-        font = ImageFont.truetype("utils/assets/Roboto-Medium.ttf", 18)
+        font_cats = ImageFont.truetype("utils/assets/Roboto-Medium.ttf", 21)
+        font_files = ImageFont.truetype("utils/assets/Roboto-Medium.ttf", 21)
         for i, filename in enumerate(filenames):
-            draw.text((0, i * IMG_SIZE + IMG_SIZE // 2), filename, fill='white', font=font)
+            draw.text((0, i * IMG_SIZE + IMG_SIZE // 2), filename, fill='white', font=font_files)
         
         for i in range(3):
-            draw.text((i * 1.5 * IMG_SIZE + (1.5 * IMG_SIZE // 2), 0), ['Original', 'Predicted', 'Ground Truth'][i], fill='white', font=font)
+            draw.text((i * 1.5 * IMG_SIZE + (1.5 * IMG_SIZE // 2) - 20, 0), ['Original', 'Predicted', 'Ground Truth'][i], fill='white', font=font_cats)
 
         # Save the grid to disk
-        grid.save('model_testing_grid.png')
-
-        #fixed_ip_train = T.Compose([T.Resize(IMG_SIZE),  T.ToTensor(), T.Normalize([0.0,0.0,0.0], [1.0,1.0,1.0])])(Image.open('data/pretraining/test/imgs/493.png')).unsqueeze(0)
-        #fixed_ip_train = fixed_ip_train.to(device)
-        #output = model(fixed_ip_train)
-        #vutils.save_image(images[7], open(f'inference/results/predicted_image.png', 'wb'))
+        grid.save('inference/results/model_testing_grid.png')
 
