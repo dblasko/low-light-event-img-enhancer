@@ -1,5 +1,6 @@
 from torch.utils.data import dataset
 import torchvision.transforms as T
+import torch
 from PIL import Image
 import os
 
@@ -9,6 +10,7 @@ class PretrainingDataset(dataset.Dataset):
     """
     def __init__(self, img_folder, target_img_folder, img_size = 64, limit=None, train=True):
         super().__init__()
+        self.train = train
         self.filenames = [os.path.join(img_folder, file) for file in os.listdir(img_folder) if not file.startswith('.DS_Store')]
         if limit is not None:
             self.filenames = self.filenames[:limit]
@@ -26,8 +28,21 @@ class PretrainingDataset(dataset.Dataset):
     def __getitem__(self, idx):
         image = Image.open(self.filenames[idx]).convert('RGB')
         target = Image.open(self.target_filenames[idx]).convert('RGB')
+        
+        if not self.train and image.size[0] > image.size[1]: # to ensure all images of a batch are in the same orientation
+            image = image.rotate(90, expand=True)
+            target = target.rotate(90, expand=True)
+        
         image = self.transform(image)
         target = self.transform(target)
+        
+        if not self.train: # reshape to dimensions dividible by 8
+            if target.shape[1] % 8 != 0:
+                target = target[:, :-(target.shape[1] % 8), :]
+                image = image[:, :-(image.shape[1] % 8), :]
+            if target.shape[2] % 8 != 0:
+                target = target[:, :, :-(target.shape[2] % 8)]
+                image = image[:, :, :-(image.shape[2] % 8)]
         
         return image, target
     
