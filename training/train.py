@@ -1,12 +1,17 @@
-# TODO: documentation, then prepare finetuning -> try fine-tune on larger resolutions on colab
-# TODO: (! huggan night2day not darkened - use some LoL) + all data augs from albumentations etc?
+# TODO: documentation, then prepare finetuning -> try fine-tune on larger resolutions on colab? 
+# TODO: Fine-tuning, if overfits/performs bad, might wanna try a model with more parameters for pre-training...BUT FIRST TRY GENERATE DATASET WITHOUT NOISE. Also can do more data with the "mariage" pictures.
+# TODO: make release of fine-tuned weights
+# TODO: release fine-tuning dataset too?
+
 # TODO: sanity tests + GitHub CI?
-# TODO: setup colab or Gradient?
-# TODO: verify batch psnr makes sense
-# TODO: design pretrain run + document it (config files, what run, how dataset was created, wandb + resuming... add release of weights.)
-# TODO: after trained version, add tests & clean up -> prepare fine-tune dataset, make fine-tuned version too -> eval, compare impact, package dataset - check expectations and the rest, if time compare other model from lib that I trained (cf onglet WANDB)
-# TODO: then prepare fine tune data, design fine tune run, test non-fine tuned model on the data too...
-# TODO: other model from lib OR TRY SCALING UP THE MODEL???
+
+# (! huggan night2day not darkened - use some LoL - DOCUMENT THE SWITCH IN README/REPORT) - explain also data transformations used & why (& why not more)
+# Documentation: explain colab usage as well
+# TODO: document pretrain run, dataset generation, hyperparam experimentation / problems & how solved... illustrate with WANDB. Make release of weights
+# TODO: clean up 
+# TODO: after fine-tuned version -> eval, compare impact of fine-tuning, 
+# TODO: if time compare other model from lib that I train here (cf onglet WANDB) - use same hyperparams/configs/scripts OR try scaling up the model?
+
 
 import sys, os, argparse, yaml, torch, wandb
 sys.path.append(".")
@@ -28,7 +33,7 @@ def train(train_data, model, criterion, optimizer, epoch, device, enable_mixup=T
     mixup = MixUp()
     
     for idx, (img, target) in enumerate(batches):
-        assert not np.any(np.isnan(img.numpy())) # TODO: try from epoch 0, if persists check if None in loss list, print the epoch loss list....
+        assert not np.any(np.isnan(img.numpy())) 
         img = img.to(device)
         target = target.to(device)
         
@@ -47,8 +52,7 @@ def train(train_data, model, criterion, optimizer, epoch, device, enable_mixup=T
     epoch_psnr = sum(psnrs) / len(psnrs)
     epoch_loss = sum(losses) / len(losses)
     torch.cuda.empty_cache()
-    return epoch_loss, epoch_psnr
-    
+    return epoch_loss, epoch_psnr    
 
 def validate(val_data, model, criterion, device): 
     losses, psnrs = [], []
@@ -121,6 +125,11 @@ if __name__ == "__main__":
         lr_scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         start_epoch = checkpoint['epoch']
         print(f"-> Resuming training from epoch {start_epoch}")
+    # Setting up fine-tuning if 'from_pretrained' is specified in config:
+    elif 'from_pretrained' in config and os.path.isfile(config["from_pretrained"]):
+        checkpoint = torch.load(config["from_pretrained"])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        print(f"-> Fine-tuning based on model weights {config['from_pretrained']}")
     
     # Training loop:
     best_val_loss = float('inf')
