@@ -3,6 +3,8 @@
 # TODO: make release of fine-tuned weights
 # TODO: release fine-tuning dataset too?
 
+# TODO: embed wandb dashboard in github doc?
+
 # TODO: sanity tests + GitHub CI?
 
 # (! huggan night2day not darkened - use some LoL - DOCUMENT THE SWITCH IN README/REPORT) - explain also data transformations used & why (& why not more)
@@ -102,11 +104,11 @@ if __name__ == "__main__":
     wandb.config.update(config)
 
     # Prepare training objects:
-    model = MIRNet(num_features=config['num_features'] if 'num_features' in config else 64).to(device)
+    model = MIRNet(num_features=config['num_features'] if 'num_features' in config else 64, number_msrb=config['num_msrb'] if 'num_msrb' in config else 2).to(device)
     wandb.watch(model)
     criterion = CharbonnierLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], betas=(0.9,0.999), weight_decay=1e-8, eps=1e-8)
-    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['epochs'], 5e-5, verbose=True)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], betas=(0.9,0.999), weight_decay=1e-8, eps=1e-8) 
+    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['epochs'], config['learning_rate'] * 5 / 10, verbose=True) 
     
     train_dataset = PretrainingDataset(config['train_dataset_path'] + '/imgs', config['train_dataset_path'] + '/targets', img_size=config['image_size'])
     val_dataset = PretrainingDataset(config['val_dataset_path'] + '/imgs', config['val_dataset_path'] + '/targets', img_size=config['image_size'], train=False)
@@ -130,6 +132,21 @@ if __name__ == "__main__":
         checkpoint = torch.load(config["from_pretrained"])
         model.load_state_dict(checkpoint['model_state_dict'])
         print(f"-> Fine-tuning based on model weights {config['from_pretrained']}")
+        for param in model.conv_start.parameters():
+            param.requires_grad = False
+        for rrg in model.msrb_blocks.children():
+            for i, msrb_block in enumerate(rrg.blocks.children()):
+                # 2 msrbs then 1 conv
+                if not i > 1:
+                    for param in msrb_block.dual_attention_units.parameters():
+                        param.requires_grad = False # TODO: maybe not
+                    for param in msrb_block.down.parameters():
+                        param.requires_grad = False
+                    for param in msrb_block.skff_blocks.parameters():
+                        param.requires_grad = False
+        # TODO: add only trainable parameters to optimizer
+        optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config['learning_rate'], betas=(0.9,0.999), weight_decay=1e-8, eps=1e-8) 
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config['epochs'], config['learning_rate'] * 5 / 10, verbose=True) 
     
     # Training loop:
     best_val_loss = float('inf')
@@ -139,7 +156,7 @@ if __name__ == "__main__":
     last_6_checkpoints = [] 
 
     for epoch in range(start_epoch, config['epochs']):
-        epoch_loss, epoch_psnr = train(train_data, model, criterion, optimizer, epoch, device)
+        epoch_loss, epoch_psnr = train(train_data, model, criterion, optimizer, epoch, device, False if 'disable_mixup' in config else True)
         print(f"***Epoch {epoch}***\n\tTraining loss: {epoch_loss} - Training PSNR: {epoch_psnr}")
         wandb.log({"Training Loss": epoch_loss, "Training PSNR": epoch_psnr})
         lr_scheduler.step()

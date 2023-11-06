@@ -1,0 +1,12 @@
+from_pretrained: 'model/weights/Mirnet_enhance99_64x64.pth'
+epochs: 100 
+batch_size: 32
+learning_rate: 0.00001
+early_stopping: False
+image_size: 128 # At training, random crops of (image_size//2, image_size//2) are used.
+workers: 2
+disable_mixup: True
+train_dataset_path: 'data/finetuning/train'
+val_dataset_path: 'data/finetuning/val'
+test_dataset_path: 'data/finetuning/test'
+
