@@ -6,3 +6,4 @@ albumentations
 wandb
 pyyaml
 tqdm
+pytest
