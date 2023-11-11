@@ -3,15 +3,17 @@ import torch
 from torch.utils.data import DataLoader
 
 import sys
+
 sys.path.append(".")
 
 from training.training_utils.CharbonnierLoss import CharbonnierLoss
+
 
 class TestLoss(unittest.TestCase):
     """
     Tests associated to the loss function.
     """
-    
+
     def test_zero_loss(self):
         """
         Loss should be zero when prediction equals target
