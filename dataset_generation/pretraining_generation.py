@@ -12,7 +12,7 @@ if __name__ == "__main__":
         os.makedirs(f"data/pretraining/{split}/imgs", exist_ok=True)
         os.makedirs(f"data/pretraining/{split}/targets", exist_ok=True)
 
-    dataset = load_dataset("huggan/night2day")
+    dataset = load_dataset("geekyrakshit/LoL-Dataset")
 
     train_size = int(0.85 * len(dataset["train"]))
     val_size = int(0.10 * len(dataset["train"]))
