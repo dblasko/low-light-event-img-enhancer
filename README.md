@@ -15,8 +15,8 @@ Deep-learning-based low-light image enhancer specialized on restoring dark image
     - [Pre-training](#pre-training)
     - [Fine-tuning](#fine-tuning)
   - [Running the model for inference](#running-the-model-for-inference)
-    - [Inference on a directory of images](#inference-on-a-directory-of-images)
     - [Inference on a single image](#inference-on-a-single-image)
+    - [Inference on a directory of images](#inference-on-a-directory-of-images)
   - [Generating the datasets](#generating-the-datasets)
     - [Pre-training dataset](#pre-training-dataset)
     - [Fine-tuning dataset](#fine-tuning-dataset)
@@ -46,50 +46,135 @@ In a **Python 3.10** environment, install the requirements using `pip install -r
 
 ## Training the model
 
-Training is generally done with the `training/train.py` script. Before running it, the training run must be configured in `training/config.yaml`. The configuration file contains the following parameters:
-***TODO***
-**TODO: specify also WANDB key, show example of tracking, describe config file necessary & optional params° etc.**
+Model training is generally performed with the `training/train.py` script. Before running it, the training run must be configured in `training/config.yaml` (*or any other yaml file in that directory*). The configuration file contains the following parameters:
+```yaml
+# *** REQUIRED SETTINGS ***
+epochs: int # the number of epochs to train for.
+batch_size: int 
+learning_rate: float
+early_stopping: bool # whether to use enable early stopping or not.
+train_dataset_path: string # path to the training dataset - should contain the 'imgs' and 'targets' folders with images.
+val_dataset_path: string
+test_dataset_path: string
+image_size: 128 # At training, random crops of (image_size//2, image_size//2) are used. At validation/testing, the smallest dimension of the image is resized to image_size while preserving the aspect ratio.
 
-**TODO: general usage of script, from scratch BUT ALSO explain supports checkpointing & resuming a training run!**
-
+# *** OPTIONAL SETTINGS ***
+from_pretrained: string # Used for finetuning: path to the pretrained model weights (.pth file).
+resume_epoch: int # Used to resume training from a given checkpoint. If specified and a file in the format model/weights/Mirnet_enhance{resume_epoch}.pth exists (automatic checkpoints are named this way), the optimizer, scheduler and model states will be restored and training will resume from there up to the desired amount of epochs.
+num_features: int # Number of channels to be used by the MIRNet, defaults to 64 if not specified.
+num_msrb: int # Number of MSRB blocks in the MIRNet recurrent residual groups, defaults to 2.
+workers: int # Number of workers to use for data loading, defaults to 8.
+disable_mixup: bool # Whether to disable mixup augmentation or not. By default, mixup is enabled.
+```
 Then, you can run the training script while pointing to your configuration file with `python training/train.py --config training/config.yaml`.
-***TODO: document will be tracked in WANDB...***
+
+The training procedure can be interrupted at any time, and resumed later by specifying the `resume_epoch` parameter in the configuration file. The script will automatically load the optimizer, scheduler and model states from the checkpoint file from that epoch and resume training from there as the models are automatically checkpointed at every epoch. For memory saving purposes, if the validation PSNR does not improve for 5 epochs, the checkpoints of those 5 epochs get deleted.
+
+As Weights And Biases is used for experiment tracking (*logging configurations, training runs, metrics...*), your API key will be requested on the first run of the script. You can find your API key in your [WANDB account](https://wandb.ai/authorize).
 
 ### Pre-training
-***TODO: Explain how to start from scratch, used LoL dataset generated in [refer to section described] but can use another as specified there. General form [describe]. document pre-training pass & commands/configs used, alternatively download weights here***
 
-**Remind model is available in releases**
+The MIRNets released in this project have first been pre-trained on the LoL dataset for 100 epochs, on 64x64 crops from images where the smallest dimension was resized to 128, but you can use the following instructions with any other dataset to pre-train on different data. 
 
-### Fine-tuning 
-***TODO: Same steps as above. document fine-tuning pass & commands/configs, alternatively download weights here***
+The weights resulting from the LoL-pre-training can be obtained [from this release](https://github.com/dblasko/low-light-event-img-enhancer/releases/tag/mirnet-pretrained-LoL-1.0.0-100epochs), and the corresponding training configuration file is available [here](https://github.com/dblasko/low-light-event-img-enhancer/blob/main/training/pretraining_config.yaml). To obtain the pre-training dataset, follow the steps specified in [Generating the datasets](#generating-the-datasets) section.
 
-***Doc how freeze/no freeze layers etc, cf train.py***
+To reproduce the pre-training from scratch, you can run the following command after setting up a pre-training dataset:
+```bash
+$ python training/train.py --config training/pretraining_config.yaml
+```
 
-**Remind model is available in releases**
+
+### Fine-tuning
+
+The fine-tuned model is based on the [pre-trained weights](https://github.com/dblasko/low-light-event-img-enhancer/releases/tag/mirnet-pretrained-LoL-1.0.0-100epochs) described in the previous section. It has been further trained on the [fine-tuning dataset of event-photographs](https://github.com/dblasko/low-light-event-img-enhancer/releases/tag/fine-tuning-dataset) for 100 epochs, with early-stopping (kicked in a 35 epochs), on 64x64 crops from images where the smallest dimension was resized to 128. Most of the earlier layers of the pre-trained model have been frozen for fine-tuning which led to the best results. 
+
+The weights resulting from the fine-tuning can be obtained [from this release](https://github.com/dblasko/low-light-event-img-enhancer/releases/tag/mirnet-finetuned-1.0.0-100epochs), and the corresponding configuration file is available [here](https://github.com/dblasko/low-light-event-img-enhancer/blob/main/training/finetuning_config.yaml). To obtain the fine-tuning dataset or set up your own, follow the steps specified in [Generating the datasets](#generating-the-datasets) section.
+
+To reproduce the fine-tuning from scratch, you can run the following command after setting up a fine-tuning dataset:
+```bash
+$ python training/train.py --config training/finetuning_config.yaml
+```
+Note: for fine-tuning, the `from_pretrained` parameter in the configuration file must be set to the path of the pre-trained weights, as visible in the [fine-tuning configuration file](https://github.com/dblasko/low-light-event-img-enhancer/blob/main/training/finetuning_config.yaml) and explained in [Training the model](#training-the-model).
 
 ## Running the model for inference 
-**Specify in which folder there should be a model, can be gotten from (link to releases).**
-
-### Inference on a directory of images
-
-**TODO: explain, gives the grid + eval metrics, show example of output, explain how to use the script with example usage**
+To run model inference, put the model weights in the `model/weights` folder. For example, weights of the pretrained and fine-tuned MIRNet model are available in the [releases](https://github.com/dblasko/low-light-event-img-enhancer/releases).
 
 ### Inference on a single image
-*μTODO: implement & document**
+To enhance a low-light image with a model, run the inference script as follows: 
+```bash
+$ python inference/enhance_image.py -i <path_to_input_image> 
+    [-o <path_to_output_folder> -m <path_to_model>]
+# or 
+$ python inference/enhance_image.py --input_image_path <path_to_input_image> 
+    [--output_folder_path <path_to_output_folder> --model_path <path_to_model>]
+```
+* If the output folder is not specified, the enhanced image is written to the directory the script is run from.
+* If the model path is not specified, the default model defined in the `MODEL_PATH` constant of the script, which can be updated as needed, is used.
+
+A typical use-case looks like this:
+```
+$ python inference/enhance_image.py -i data/test/low/0001.png 
+    -o inference/results -m model/weights/pretrained_mirnet.pt
+```
+
+### Inference on a directory of images
+To gauge how a model performs on a directory of images (*typically, the test or validation subset of a dataset*), the `inference/visualize_model_predictions.py` script can be used. It generates a grid of the original images (dark and light) and their enhanced versions produced by the model to visually evaluate performance, and computes the PSNR and Charbonnier loss on those pictures as well. 
+
+To use the script, change the values of the three constants defined at the top of the file if needed (*`IMG_SIZE`, `NUM_FEATURES`, `MODEL_PATH` - the default values should be appropriate for most cases*), and run the script as:
+```bash
+$ python inference/visualize_model_predictions.py <path_to_image_folder> 
+```
+The image folder should contain two subfolders, `imgs` and `targets` as any split of the datasets. The script will generate a grid of the original images and their enhanced versions and save it as a png file in `inference/results`, and output the PSNR and Charbonnier loss on the dataset.
+
+**For example, to visualize model performance on the test subset of the LoL dataset, proceed as follows:**
+```bash
+$ python inference/visualize_model_predictions.py data/pretraining/test
+-> mps device detected.
+100%|████████████████████████████████████████████████████████████████| 1/1 [00:05<00:00,  5.31s/it]
+***Performance on the dataset:***
+        Test loss: 0.10067714005708694 - Test PSNR: 19.464811325073242
+
+```
+Image produced by the script:
+
+<img src='https://camo.githubusercontent.com/89d418300cdffb1eb5cd7db764683a2cde2b71ed26732ea36beb62ef5f1192f5/68747470733a2f2f6c68332e676f6f676c6575736572636f6e74656e742e636f6d2f64726976652d7669657765722f414b3761506143377658494e2d586636543650734a41533243376c76517668534632496e3675567a546c53594b7850505f364543516c5a304d536e7a616b6e495a31515652424f6a306f4b39334a5561516869514a5a30586a59597153326c4859513d7331363030' width='500'>
+
 
 ## Generating the datasets
+To run model training or inference on the datasets used for the experiments in this project, the datasets in the right format have to be generated, or prepared datasets need to be downloaded and placed in the `data` folder. 
+
 ### Pre-training dataset
-**Explain how could also use Night2Day by changing the one line for example**
+The pre-training dataset is the [LoL dataset](https://daooshee.github.io/BMVC2018website/). To download and format it in the expected format, run the dedicated script with `python dataset_generation/pretraining_generation.py`. The script downloads the dataset from HuggingFace Datasets, and generates the pre-training dataset in the `data/pretraining` folder (*created if it does not exist*) with the dark images in the `imgs` subfolder, and the ground-truth pictures in `targets`. 
+
+To use a different dataset for pre-training, simply change the HuggingFace dataset reference following line in the following line of `dataset_generation/pretraining_generation.py`:
+```
+dataset = load_dataset("geekyrakshit/LoL-Dataset") # can be changed to e.g. "huggan/night2day"
+```
 
 ### Fine-tuning dataset
-**Explain choices, also rotations all horizontal & resizing, multiple iterations of adding image not exactly event too but photographic style improved performance further... show how to run the script on a raw dataset. Remind it is available in releases**
+
+**If you would like to directly use the processed fine-tuning dataset**, you can download it from the [corresponding release](https://github.com/dblasko/low-light-event-img-enhancer/releases/tag/fine-tuning-dataset), extract the archive and place the three `train`, `val`, and `test` folders it contains in the `data/finetuning` folder (*to be created if it does not exist*).
+
+Otherwise, **to generate a fine-tuning dataset in the correct format**, the `dataset_generation/finetuning_generation.py` script can be used to re-generate the finetuning dataset from the original images, or to create a finetuning dataset from any photographs of any size you would like. 
+To do so:
+* Place your well-lit original images in a `data/finetuning/original_images` folder. Note that the images do not need to be of same size of orientation, the generation script takes care of unifying them. 
+* Then, you can run the generation script with `python dataset_generation/finetuning_generation.py`, which will create the `data/finetuning/[train&val&test]` folders with the ground-truth images in a `targets` subfolder, and the corresponded low-light images in a `inputs` subfolder. The images are split into the train, validation, and test sets with a 85/10/5 ratio. 
+
+The low-light images are generated by randomly darkening the original images by 80 to 90% of their original brightness, and then adding random gaussian noise and color-shift noise to better emulate how a photographer's camera would capture the picture in low-light conditions. For both the ground-truth and darkened images, the image's smallest dimension is then resized to 400 pixels while preserving the aspect ratio, and a center-crop of 704x400 or 400x704 (depending on the image orientation) is applied to unify the image aspect-ratios (*this leads to a 16/9 aspect-ratio, which is a standard out of most cameras*).
 
 ## Running tests
-**Also specify all are run on commits on main through Github Actions**
+The unit and integration tests are located in the `tests` folder, and they can be run with the `pytest` command from the root directory of the project. Currently, they test the different components of the model and the full model itself, the loss function and optimizer, the data pipeline (dataset, data loader, etc.), as well as the training and testing/validation procedures.
+
+
+All tests are also run on every commit on the `main` branch through Github Actions alongside linting, and their status can be observed [here](https://github.com/dblasko/low-light-event-img-enhancer/actions).
+
+To add further tests, simply add a new file in the `tests` folder, and name it `test_*.py` where `*` describes what you want to test. Then, add your tests in a class named `Test*`. 
 
 # Usage of the web-application based on the model
 *Coming soon.*
 
 ## Running the inference endpoint
+*Coming soon.*
 
 ## Running the web application
+*Coming soon.*

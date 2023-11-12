@@ -19,9 +19,10 @@ from training.train import validate
 
 """
 Run this script to run model inference on a specified image and write the enhanced image to an output folder.
-Usage: python inference/enhance_image.py -i <path_to_input_image> [-o <path_to_output_folder>]
-    or python inference/enhance_image.py --input_image_path <path_to_input_image> [--output_folder_path <path_to_output_folder>]
+Usage: python inference/enhance_image.py -i <path_to_input_image> [-o <path_to_output_folder> -m <path_to_model>]
+    or python inference/enhance_image.py --input_image_path <path_to_input_image> [--output_folder_path <path_to_output_folder> --model_path <path_to_model>]
 If the output folder is not specified, the enhanced image is written to the directory the script is run from.
+If the model path is not specified, the default model defined in MODEL_PATH is used.
 """
 
 IMG_SIZE = 400
@@ -79,8 +80,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_folder_path",
         "-o",
-        help="Path to the output folder to save the enhanced image to.",
+        help="Path to the output folder to save the enhanced image to the MODEL_PATH constant specified in the script.",
         default=".",
+    )
+    parser.add_argument(
+        "--model_path",
+        "-m",
+        help="Path to model weights to use. Defaults to the ",
+        default=MODEL_PATH,
     )
     args = parser.parse_args()
 
@@ -93,4 +100,6 @@ if __name__ == "__main__":
     )
     print(f"-> {device.type} device detected.")
 
-    run_inference(args.input_image_path, args.output_folder_path, device)
+    run_inference(
+        args.input_image_path, args.output_folder_path, device, args.model_path
+    )
