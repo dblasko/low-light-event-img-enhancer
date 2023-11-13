@@ -38,7 +38,7 @@ def run_inference(input_image_path, output_folder_path, device, model_path=MODEL
     model.eval()
     with torch.no_grad():
         try:
-            img = Image.open(input_image_path)
+            img = Image.open(input_image_path).convert("RGB")
             img_tensor = T.Compose(
                 [
                     T.Resize(IMG_SIZE),

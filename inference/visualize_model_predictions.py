@@ -24,7 +24,7 @@ The output image is saved in 'inference/results', and it is a grid where each ro
 
 IMG_SIZE = 400
 NUM_FEATURES = 64
-MODEL_PATH = f"model/weights/Mirnet_enhance{99}_64x64.pth"  #'model/weights/Mirnet_enhance_finetune-35-early-stopped_64x64.pth'
+MODEL_PATH = "model/weights/Mirnet_enhance_finetune-35-early-stopped_64x64.pth"  # f"model/weights/Mirnet_enhance{99}_64x64.pth"  #'model/weights/Mirnet_enhance_finetune-35-early-stopped_64x64.pth'
 
 
 if __name__ == "__main__":

@@ -205,7 +205,7 @@ if __name__ == "__main__":
             optimizer,
             epoch,
             device,
-            False if "disable_mixup" in config else True,
+            False if "disable_mixup" in config and config["disable_mixup"] else True,
         )
         print(
             f"***Epoch {epoch}***\n\tTraining loss: {epoch_loss} - Training PSNR: {epoch_psnr}"
