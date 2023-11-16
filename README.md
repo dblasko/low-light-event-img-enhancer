@@ -177,4 +177,9 @@ To add further tests, simply add a new file in the `tests` folder, and name it `
 *Coming soon.*
 
 ## Running the web application
-*Coming soon.*
+To start the inference web application, run the following command from the root directory of the project:
+```bash
+$ streamlit run app/app.py
+```
+The web application should then be accessible at `localhost:8501` in your browser and allow you to upload images in any size and format, enhance them and download the enhanced version:
+![Screenshot from the demonstration application](utils/documentation_images/demo_app.png)
