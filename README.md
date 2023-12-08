@@ -12,6 +12,7 @@ Deep-learning-based low-light image enhancer specialized on restoring dark image
 - [General usage of the project](#general-usage-of-the-project)
   - [Requirements](#requirements)
   - [Training the model](#training-the-model)
+    - [Optimizing the training hyperparameters](#optimizing-the-training-hyperparameters)
     - [Pre-training](#pre-training)
     - [Fine-tuning](#fine-tuning)
   - [Running the model for inference](#running-the-model-for-inference)
@@ -72,6 +73,9 @@ The training procedure can be interrupted at any time, and resumed later by spec
 
 > [!WARNING]
 > As Weights And Biases is used for experiment tracking (*logging configurations, training runs, metrics...*), your API key will be requested on the first run of the script. You can find your API key in your [WANDB account](https://wandb.ai/authorize).
+
+### Optimizing the training hyperparameters
+The hyperparameters of the training procedure can be optimized using the `training/hyperparameter_optimization.py` script. The procedure relies on WANDB Sweeps to test and compare different combinations of hyperparameters. The tuning can be run with `python training/hyperparameter_optimization.py`. The value grid, as well as the exploration method (random, Bayes, grid search...) can be further adapted at the bottom of the script.
 
 ### Pre-training
 
@@ -173,7 +177,6 @@ The unit and integration tests are located in the `tests` folder, and they can b
 To add further tests, simply add a new file in the `tests` folder, and name it `test_*.py` where `*` describes what you want to test. Then, add your tests in a class named `Test*`. 
 
 # Usage of the web-application based on the model
-*Coming soon.*
 
 ## Running the inference endpoint
 *Coming soon.*
