@@ -143,7 +143,7 @@ $ python inference/visualize_model_predictions.py data/pretraining/test
 ```
 Image produced by the script:
 
-<img src='https://camo.githubusercontent.com/89d418300cdffb1eb5cd7db764683a2cde2b71ed26732ea36beb62ef5f1192f5/68747470733a2f2f6c68332e676f6f676c6575736572636f6e74656e742e636f6d2f64726976652d7669657765722f414b3761506143377658494e2d586636543650734a41533243376c76517668534632496e3675567a546c53594b7850505f364543516c5a304d536e7a616b6e495a31515652424f6a306f4b39334a5561516869514a5a30586a59597153326c4859513d7331363030' width='500'>
+<img src='https://lh3.googleusercontent.com/drive-viewer/AK7aPaBzAYMGfhI3xWua8evTfjK0anhMedulIp44x6XWY87xuymIK5zVrz3XhiQQHElOCI9Q2V2BFwf0jIOX7fxI8hJX-Nag4A=s1600' width='500'>
 
 
 ## Generating the datasets
