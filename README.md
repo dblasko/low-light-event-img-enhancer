@@ -22,7 +22,7 @@ Deep-learning-based low-light image enhancer specialized on restoring dark image
     - [Pre-training dataset](#pre-training-dataset)
     - [Fine-tuning dataset](#fine-tuning-dataset)
   - [Running tests](#running-tests)
-- [Usage of the web-application based on the model](#usage-of-the-web-application-based-on-the-model)
+- [Usage of the web-application and REST API based on the model](#usage-of-the-web-application-and-rest-api-based-on-the-model)
   - [Running the inference endpoint](#running-the-inference-endpoint)
   - [Running the web application](#running-the-web-application)
 
@@ -176,10 +176,47 @@ The unit and integration tests are located in the `tests` folder, and they can b
 
 To add further tests, simply add a new file in the `tests` folder, and name it `test_*.py` where `*` describes what you want to test. Then, add your tests in a class named `Test*`. 
 
-# Usage of the web-application based on the model
+# Usage of the web-application and REST API based on the model
 
 ## Running the inference endpoint
-*Coming soon.*
+To start the inference endpoint (an API implemented with Flask), run the following command from the root directory of the project:
+```bash
+python app/api.py
+```
+The inference endpoint should then be accessible at `localhost:5000` and allow you to send POST requests with images to enhance.  
+
+Two routes are available:
+- `/enhance`: takes a single image as input and returns the enhanced version as a png file.  
+    **Example usage with curl:**
+    ```bash
+    curl -X POST -F "image=@./img_102.png" http://localhost:5000/enhance --output ./enhanced_image.png
+    ```
+    **Example usage with Python requests:**
+    ```python
+    import requests
+
+    response = requests.post('http://localhost:5000/enhance', files={'image': open('image.jpg', 'rb')})
+    if response.status_code == 200:
+        with open('enhanced_image.jpg', 'wb') as f:
+            f.write(response.content)
+    ```
+- `/enhance_batch`: takes multiple images as input and returns a zip file containing the enhanced versions of the images as png files.  
+    **Example usage with curl:**
+    ```bash
+    curl -X POST -F "images=@./image1.jpg" -F "images=@./image2.jpg" http://localhost:5000/batch_enhance -o batch_enhanced.zip
+    ```
+    **Example usage with Python requests:**
+    ```python
+    import requests
+
+    files = [
+        ('images', ('image1.jpg', open('image1.jpg', 'rb'), 'image/jpeg')),
+        ('images', ('image2.jpg', open('image2.jpg', 'rb'), 'image/jpeg'))
+    ]
+    response = requests.post('http://localhost:5000/batch_enhance', files=files)
+    with open('enhanced_images.zip', 'wb') as f:
+            f.write(response.content)
+    ```
 
 ## Running the web application
 To start the inference web application, run the following command from the root directory of the project:

@@ -8,3 +8,5 @@ pyyaml
 tqdm
 pytest
 streamlit
+flask
+werkzeug
