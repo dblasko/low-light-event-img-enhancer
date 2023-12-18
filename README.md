@@ -1,11 +1,13 @@
+# low-light-event-img-enhancer <!-- omit from toc -->
 ![Python](https://img.shields.io/badge/python-3.10-green.svg)
 ![Lint & test](https://github.com/dblasko/low-light-event-img-enhancer/actions/workflows/continuous-integration.yml/badge.svg)
+[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow)](https://huggingface.co/dblasko/mirnet-low-light-img-enhancement)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow)](https://huggingface.co/spaces/dblasko/mirnet-low-light-img-enhancement)
 [![HitCount](https://hits.dwyl.com/dblasko/low-light-event-img-enhancer.svg)](https://hits.dwyl.com/dblasko/low-light-event-img-enhancer)
 
-# low-light-event-img-enhancer <!-- omit from toc -->
 Deep-learning-based low-light image enhancer specialized on restoring dark images from events (concerts, parties, clubs...).
 
-## Table of contents: <!-- omit from toc -->
+## Table of contents <!-- omit from toc -->
 - [Project structure](#project-structure)
   - [The codebase](#the-codebase)
   - [The MIRNet model](#the-mirnet-model)
