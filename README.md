@@ -45,7 +45,8 @@ The [model](https://github.com/dblasko/low-light-event-img-enhancer/blob/main/mo
 
 # General usage of the project
 ## Requirements
-In a **Python 3.10** environment, install the requirements using `pip install -r requirements.txt`.
+In a **Python 3.10** environment, install the requirements using `pip install -r requirements.txt`.  
+In case of any version conflicts, the exact versions of the packages used during development are specified in `requirements_with_versions.txt` that you can use in the previously mentioned command.
 
 ## Training the model
 
