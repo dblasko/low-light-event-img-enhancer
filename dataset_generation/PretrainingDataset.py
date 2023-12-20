@@ -1,6 +1,5 @@
 from torch.utils.data import dataset
 import torchvision.transforms as T
-import torch
 from PIL import Image
 import os
 

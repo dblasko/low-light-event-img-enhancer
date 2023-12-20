@@ -1,7 +1,6 @@
 import unittest
 import torch
 import torch.nn as nn
-import warnings
 import math
 import random
 from torch.utils.data import DataLoader

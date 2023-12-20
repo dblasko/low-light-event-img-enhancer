@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, send_file
-from werkzeug.utils import secure_filename
 from PIL import Image
 import torch
 import torchvision.transforms as T

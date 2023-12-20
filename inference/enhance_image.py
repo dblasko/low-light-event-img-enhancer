@@ -1,21 +1,13 @@
 import argparse
-
 import torch
 import torchvision.transforms as T
-import torchvision.utils as vutils
-from torchvision.utils import make_grid
-from PIL import Image, ImageDraw, ImageFont
-import os
+from PIL import Image
 import sys
 import argparse
-from torch.utils.data import DataLoader
 
 sys.path.append(".")
 
-from dataset_generation.PretrainingDataset import PretrainingDataset
-from training.training_utils.CharbonnierLoss import CharbonnierLoss
 from model.MIRNet.model import MIRNet
-from training.train import validate
 
 """
 Run this script to run model inference on a specified image and write the enhanced image to an output folder.
