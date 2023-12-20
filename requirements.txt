@@ -10,3 +10,5 @@ pytest
 streamlit
 flask
 werkzeug
+numpy
+opencv-python
