@@ -60,6 +60,7 @@ def run_model(input_image):
 # Endpoint for single image
 @app.route("/enhance", methods=["POST"])
 def enhance_image():
+    print("ENHANCE ENDPOINT CALLED")
     if "image" not in request.files:
         return jsonify({"error": "No image provided"}), 400
     file = request.files["image"]
@@ -100,4 +101,4 @@ def batch_enhance_images():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)

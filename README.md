@@ -26,6 +26,8 @@ Deep-learning-based low-light image enhancer specialized on restoring dark image
   - [Running tests](#running-tests)
 - [Usage of the web-application and REST API based on the model](#usage-of-the-web-application-and-rest-api-based-on-the-model)
   - [Running the inference endpoint](#running-the-inference-endpoint)
+    - [Running the endpoint locally and querying the API](#running-the-endpoint-locally-and-querying-the-api)
+    - [Deploying the endpoint using Docker](#deploying-the-endpoint-using-docker)
   - [Running the web application](#running-the-web-application)
 
 
@@ -182,6 +184,8 @@ To add further tests, simply add a new file in the `tests` folder, and name it `
 # Usage of the web-application and REST API based on the model
 
 ## Running the inference endpoint
+
+### Running the endpoint locally and querying the API
 To start the inference endpoint (an API implemented with Flask), run the following command from the root directory of the project:
 ```bash
 python app/api.py
@@ -220,6 +224,16 @@ Two routes are available:
     with open('enhanced_images.zip', 'wb') as f:
             f.write(response.content)
     ```
+
+### Deploying the endpoint using Docker
+The same inference endpoint can be run without setting up the environment using the Docker image provided in the `Dockerfile` in the root directory of the project. To do so, run the following commands from the root directory of the project:
+```bash
+docker build -t low-light-enhancer .
+docker run -p 5000:5000 low-light-enhancer
+```
+The image automatically downloads and sets up the model weights from the GitHub release. If you would like to use the weights of a particular release, you can specify the weight URL with the `--build-arg MODEL_URL=...` argument when building the image.
+
+The inference endpoint should then be accessible at `<address of the machine hosting the container, localhost if it is the local machine>:5000` and allow you to send POST requests with images to enhance as described in the previous section.
 
 ## Running the web application
 To start the inference web application, run the following command from the root directory of the project:
