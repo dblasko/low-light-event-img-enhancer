@@ -148,7 +148,7 @@ $ python inference/visualize_model_predictions.py data/pretraining/test
 ```
 Image produced by the script:
 
-<img src='https://lh3.googleusercontent.com/drive-viewer/AK7aPaBzAYMGfhI3xWua8evTfjK0anhMedulIp44x6XWY87xuymIK5zVrz3XhiQQHElOCI9Q2V2BFwf0jIOX7fxI8hJX-Nag4A=s1600' width='500'>
+<img src='https://lh3.googleusercontent.com/drive-viewer/AEYmBYQ2YviuFDcjH5pqcXidkaFd38gsgYYdh8duKLUYy4H519aKfcjXjBQVscNPYpa1yXbDCGxGM6R2fu6NhhOVxtsf5xI8mA=s1600' width='500'>
 
 
 ## Generating the datasets
