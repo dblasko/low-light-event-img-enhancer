@@ -236,7 +236,9 @@ The image automatically downloads and sets up the model weights from the GitHub 
 The inference endpoint should then be accessible at `<address of the machine hosting the container, localhost if it is the local machine>:5000` and allow you to send POST requests with images to enhance as described in the previous section.
 
 ## Running the web application
-To start the inference web application, run the following command from the root directory of the project:
+The application has been made accessible online as a [HuggingFace Space](https://huggingface.co/spaces/dblasko/mirnet-low-light-img-enhancement).
+
+Alternatively, to start the inference web application locally, run the following command from the root directory of the project:
 ```bash
 $ streamlit run app/app.py
 ```
